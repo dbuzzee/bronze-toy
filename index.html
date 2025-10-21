@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bronze Casting Volume Converter</title>
+  <title>Bronze Casting Converter</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🔧</text></svg>">
   <style>
     body {
@@ -73,8 +73,15 @@
     </select>
 
     <div id="volToWeightSection">
-      <label for="volume">Enter volume (in³):</label>
+      <label for="volume">Enter volume:</label>
       <input type="number" id="volume" placeholder="e.g. 10">
+
+      <label for="volumeUnit">Volume unit:</label>
+      <select id="volumeUnit">
+        <option value="in3">in³ (cubic inches)</option>
+        <option value="floz">fl oz (fluid ounces)</option>
+        <option value="ml">mL (milliliters)</option>
+      </select>
     </div>
 
     <div id="weightToVolSection" style="display: none;">
@@ -102,10 +109,17 @@
 
       if (mode === "volToWeight") {
         const volume = parseFloat(document.getElementById("volume").value);
+        const unit = document.getElementById("volumeUnit").value;
+
         if (isNaN(volume)) {
           resultText = "Please enter a valid volume.";
         } else {
-          const weight = volume * bronzeDensity;
+          let volumeInInches;
+          if (unit === "in3") volumeInInches = volume;
+          if (unit === "floz") volumeInInches = volume * 1.80469;
+          if (unit === "ml") volumeInInches = volume * 0.06102;
+
+          const weight = volumeInInches * bronzeDensity;
           resultText = `That will require approx. ${weight.toFixed(2)} lbs of bronze.`;
         }
       } else {
