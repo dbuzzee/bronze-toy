@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bronze Casting Volume Converter</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🔧</text></svg>">
+  <style>
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      background: radial-gradient(circle at center, #fcdada, #f7b1b1, #f58c8c);
+      color: orangered;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .calculator {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+    button {
+      background: lightpink;
+      color: orangered;
+      border: none;
+      padding: 0.75rem;
+      margin-top: 1.5rem;
+      width: 100%;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h1>Bronze Casting Converter</h1>
+    <label for="mode">Choose mode:</label>
+    <select id="mode" onchange="toggleMode()">
+      <option value="volToWeight">Volume ➔ Weight</option>
+      <option value="weightToVol">Weight ➔ Volume</option>
+    </select>
+
+    <div id="volToWeightSection">
+      <label for="volume">Enter volume (in³):</label>
+      <input type="number" id="volume" placeholder="e.g. 10">
+    </div>
+
+    <div id="weightToVolSection" style="display: none;">
+      <label for="weight">Enter weight of bronze (lbs):</label>
+      <input type="number" id="weight" placeholder="e.g. 2.5">
+    </div>
+
+    <button onclick="convert()">Calculate</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const bronzeDensity = 0.32; // lbs/in^3
+
+    function toggleMode() {
+      const mode = document.getElementById("mode").value;
+      document.getElementById("volToWeightSection").style.display = (mode === "volToWeight") ? "block" : "none";
+      document.getElementById("weightToVolSection").style.display = (mode === "weightToVol") ? "block" : "none";
+      document.getElementById("result").innerText = "";
+    }
+
+    function convert() {
+      const mode = document.getElementById("mode").value;
+      let resultText = "";
+
+      if (mode === "volToWeight") {
+        const volume = parseFloat(document.getElementById("volume").value);
+        if (isNaN(volume)) {
+          resultText = "Please enter a valid volume.";
+        } else {
+          const weight = volume * bronzeDensity;
+          resultText = `That will require approx. ${weight.toFixed(2)} lbs of bronze.`;
+        }
+      } else {
+        const weight = parseFloat(document.getElementById("weight").value);
+        if (isNaN(weight)) {
+          resultText = "Please enter a valid weight.";
+        } else {
+          const volume = weight / bronzeDensity;
+          resultText = `That will allow for approx. ${volume.toFixed(2)} in³ of sculpture.`;
+        }
+      }
+
+      document.getElementById("result").innerText = resultText;
+    }
+  </script>
+</body>
+</html>
