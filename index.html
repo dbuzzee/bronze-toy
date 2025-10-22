@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bronze Casting Converter</title>
+  <title>Bronze Casting Calculator</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🔧</text></svg>">
   <style>
     body {
@@ -23,7 +24,7 @@
       -webkit-backdrop-filter: blur(10px);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
       padding: 2rem;
-      max-width: 400px;
+      max-width: 420px;
       width: 90%;
       border: 1px solid rgba(255, 255, 255, 0.3);
     }
@@ -65,74 +66,87 @@
 </head>
 <body>
   <div class="calculator">
-    <h1>Bronze Casting Converter</h1>
-    <label for="mode">Choose mode:</label>
-    <select id="mode" onchange="toggleMode()">
-      <option value="volToWeight">Volume ➔ Weight</option>
-      <option value="weightToVol">Weight ➔ Volume</option>
+    <h1>Bronze Casting Calculator</h1>
+
+    <label for="mode">Choose conversion mode:</label>
+    <select id="mode">
+      <option value="v2w">Volume → Weight</option>
+      <option value="w2v">Weight → Volume</option>
     </select>
 
-    <div id="volToWeightSection">
+    <div id="volumeInput">
       <label for="volume">Enter volume:</label>
-      <input type="number" id="volume" placeholder="e.g. 10">
-
-      <label for="volumeUnit">Volume unit:</label>
-      <select id="volumeUnit">
-        <option value="in3">in³ (cubic inches)</option>
-        <option value="floz">fl oz (fluid ounces)</option>
-        <option value="ml">mL (milliliters)</option>
+      <input type="number" id="volume" placeholder="e.g. 10" />
+      <label for="unit">Select unit:</label>
+      <select id="unit">
+        <option value="in3">Cubic inches (in³)</option>
+        <option value="floz">Fluid ounces (fl oz)</option>
+        <option value="ml">Milliliters (mL)</option>
       </select>
     </div>
 
-    <div id="weightToVolSection" style="display: none;">
-      <label for="weight">Enter weight of bronze (lbs):</label>
-      <input type="number" id="weight" placeholder="e.g. 2.5">
+    <div id="weightInput" style="display: none;">
+      <label for="weight">Enter weight (lbs):</label>
+      <input type="number" id="weight" placeholder="e.g. 2" />
     </div>
 
-    <button onclick="convert()">Calculate</button>
+    <button onclick="calculate()">Calculate</button>
+
     <div class="result" id="result"></div>
   </div>
 
   <script>
-    const bronzeDensity = 0.32; // lbs/in^3
+    const mode = document.getElementById("mode");
+    const volumeInput = document.getElementById("volumeInput");
+    const weightInput = document.getElementById("weightInput");
+    const resultDiv = document.getElementById("result");
 
-    function toggleMode() {
-      const mode = document.getElementById("mode").value;
-      document.getElementById("volToWeightSection").style.display = (mode === "volToWeight") ? "block" : "none";
-      document.getElementById("weightToVolSection").style.display = (mode === "weightToVol") ? "block" : "none";
-      document.getElementById("result").innerText = "";
-    }
+    const DENSITY = 0.32; // lbs per cubic inch
 
-    function convert() {
-      const mode = document.getElementById("mode").value;
-      let resultText = "";
+    mode.addEventListener("change", () => {
+      if (mode.value === "v2w") {
+        volumeInput.style.display = "block";
+        weightInput.style.display = "none";
+      } else {
+        volumeInput.style.display = "none";
+        weightInput.style.display = "block";
+      }
+      resultDiv.innerText = "";
+    });
 
-      if (mode === "volToWeight") {
+    function calculate() {
+      if (mode.value === "v2w") {
         const volume = parseFloat(document.getElementById("volume").value);
-        const unit = document.getElementById("volumeUnit").value;
+        const unit = document.getElementById("unit").value;
 
-        if (isNaN(volume)) {
-          resultText = "Please enter a valid volume.";
-        } else {
-          let volumeInInches;
-          if (unit === "in3") volumeInInches = volume;
-          if (unit === "floz") volumeInInches = volume * 1.80469;
-          if (unit === "ml") volumeInInches = volume * 0.06102;
+        let volumeInIn3;
+        if (unit === "in3") volumeInIn3 = volume;
+        if (unit === "floz") volumeInIn3 = volume * 1.80469;
+        if (unit === "ml") volumeInIn3 = volume * 0.06102;
 
-          const weight = volumeInInches * bronzeDensity;
-          resultText = `That will require approx. ${weight.toFixed(2)} lbs of bronze.`;
+        if (isNaN(volumeInIn3)) {
+          resultDiv.innerText = "Please enter a valid volume.";
+          return;
         }
+
+        const weight = volumeInIn3 * DENSITY;
+        resultDiv.innerText = `You will need approximately ${weight.toFixed(2)} lbs of bronze.`;
       } else {
         const weight = parseFloat(document.getElementById("weight").value);
         if (isNaN(weight)) {
-          resultText = "Please enter a valid weight.";
-        } else {
-          const volume = weight / bronzeDensity;
-          resultText = `That will allow for approx. ${volume.toFixed(2)} in³ of sculpture.`;
+          resultDiv.innerText = "Please enter a valid weight.";
+          return;
         }
-      }
 
-      document.getElementById("result").innerText = resultText;
+        const volumeIn3 = weight / DENSITY;
+        const volumeFloz = volumeIn3 / 1.80469;
+        const volumeMl = volumeIn3 / 0.06102;
+
+        resultDiv.innerHTML = `
+          Cubic Inches: ${volumeIn3.toFixed(2)} in³<br>Fluid Ounces: ${volumeFloz.toFixed(2)} fl oz<br>
+          Milliliters: ${volumeMl.toFixed(2)} mL
+        `;
+      }
     }
   </script>
 </body>
