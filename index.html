@@ -1,152 +1,254 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bronze Casting Calculator</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🔧</text></svg>">
-  <style>
-    body {
-      font-family: "Helvetica Neue", sans-serif;
-      background: radial-gradient(circle at center, #fcdada, #f7b1b1, #f58c8c);
-      color: orangered;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .calculator {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 16px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      padding: 2rem;
-      max-width: 420px;
-      width: 90%;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-    h1 {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-    input, select {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.3rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.7);
-    }
-    button {
-      background: lightpink;
-      color: orangered;
-      border: none;
-      padding: 0.75rem;
-      margin-top: 1.5rem;
-      width: 100%;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .result {
-      margin-top: 1.5rem;
-      font-size: 1.1rem;
-      text-align: center;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metal Casting Calculator</title>
+<link rel="icon" href="data:image/svg+xml,
+  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+    <text y='.9em' font-size='80' fill='orange'>🔥</text>
+  </svg>">
+<style>
+  @keyframes flicker {
+    0%, 100% { opacity: 0.6; transform: scaleY(1) translateY(0); }
+    50% { opacity: 1; transform: scaleY(1.4) translateY(-10px); }
+  }
+
+  @keyframes heatPulse {
+    0% { background: linear-gradient(90deg, #ff3300, #ff6600, #ffcc00); opacity: 0.6; }
+    50% { background: linear-gradient(90deg, #ff9900, #ff3300, #ff6600); opacity: 1; }
+    100% { background: linear-gradient(90deg, #ff3300, #ff6600, #ffcc00); opacity: 0.6; }
+  }
+
+  body {
+    font-family: "Helvetica Neue", sans-serif;
+    background: radial-gradient(circle at center, #220000 0%, #330000 30%, #000000 100%);
+    color: #ffb36d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  /* Flame emoji cursor everywhere */
+body, select, button, label, .result, h1 {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='24' font-size='24'>🔥</text></svg>") 16 16, auto;
+}
+
+/* Text field: use regular text cursor */
+input[type="number"], input[type="text"], select:focus {
+  cursor: text;
+}
+
+/* Button hover: use pointer */
+button:hover {
+  cursor: pointer;
+}
+
+
+  /* 🔥 Border flames container */
+  .flame-border {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Vertical flame bars (sides) */
+  .flame {
+    position: absolute;
+    width: 6px;
+    height: 60px;
+    background: linear-gradient(to top, #ff3300, #ff6600, #ffff66, transparent);
+    border-radius: 3px;
+    animation: flicker 0.3s infinite ease-in-out alternate;
+    mix-blend-mode: screen;
+    transform-origin: bottom center;
+  }
+
+  /* Top & bottom molten strips */
+  .heat-strip {
+    position: absolute;
+    width: 100%;
+    height: 8px;
+    animation: heatPulse 1.5s infinite alternate ease-in-out;
+    box-shadow: 0 0 20px #ff5500;
+  }
+  .heat-strip.top { top: 0; }
+  .heat-strip.bottom { bottom: 0; }
+
+  .calculator {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 420px;
+    width: 90%;
+    border: 2px solid rgba(255, 200, 150, 0.3);
+    box-shadow: 0 0 40px rgba(255, 100, 0, 0.4);
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    text-align: center;
+    color: #ffe699;
+    text-shadow: 0 0 10px #ff3300;
+    margin-bottom: 1rem;
+  }
+
+  label { display: block; margin-top: 1rem; font-weight: bold; }
+  input, select {
+    width: 100%; padding: 0.5rem; margin-top: 0.3rem;
+    border: 1px solid rgba(255, 200, 150, 0.4);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffe0b2;
+  }
+
+  button {
+    background: linear-gradient(90deg, #ff3300, #ffcc00);
+    color: #1a0000;
+    border: none;
+    padding: 0.75rem;
+    margin-top: 1.5rem;
+    width: 100%;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: transform 0.1s;
+  }
+  button:hover { transform: scale(1.05); }
+
+  .result {
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+</style>
 </head>
 <body>
-  <div class="calculator">
-    <h1>Bronze Casting Calculator</h1>
 
-    <label for="mode">Choose conversion mode:</label>
-    <select id="mode">
-      <option value="v2w">Volume → Weight</option>
-      <option value="w2v">Weight → Volume</option>
+<div class="flame-border" id="flameBorder">
+  <div class="heat-strip top"></div>
+  <div class="heat-strip bottom"></div>
+</div>
+
+<div class="calculator">
+  <h1>Metal Casting Calculator</h1>
+
+  <label for="metal">Choose metal:</label>
+  <select id="metal">
+    <option value="bronze">🟠 Bronze</option>
+    <option value="aluminum">⚪ Aluminum</option>
+  </select>
+
+  <label for="mode">Choose conversion mode:</label>
+  <select id="mode">
+    <option value="v2w">Volume → Weight</option>
+    <option value="w2v">Weight → Volume</option>
+  </select>
+
+  <div id="volumeInput">
+    <label for="volume">Enter volume:</label>
+    <input type="number" id="volume" placeholder="e.g. 10" />
+    <label for="unit">Select unit:</label>
+    <select id="unit">
+      <option value="in3">Cubic inches (in³)</option>
+      <option value="floz">Fluid ounces (fl oz)</option>
+      <option value="ml">Milliliters (mL)</option>
     </select>
-
-    <div id="volumeInput">
-      <label for="volume">Enter volume:</label>
-      <input type="number" id="volume" placeholder="e.g. 10" />
-      <label for="unit">Select unit:</label>
-      <select id="unit">
-        <option value="in3">Cubic inches (in³)</option>
-        <option value="floz">Fluid ounces (fl oz)</option>
-        <option value="ml">Milliliters (mL)</option>
-      </select>
-    </div>
-
-    <div id="weightInput" style="display: none;">
-      <label for="weight">Enter weight (lbs):</label>
-      <input type="number" id="weight" placeholder="e.g. 2" />
-    </div>
-
-    <button onclick="calculate()">Calculate</button>
-
-    <div class="result" id="result"></div>
   </div>
 
-  <script>
-    const mode = document.getElementById("mode");
-    const volumeInput = document.getElementById("volumeInput");
-    const weightInput = document.getElementById("weightInput");
-    const resultDiv = document.getElementById("result");
+  <div id="weightInput" style="display: none;">
+    <label for="weight">Enter weight (lbs):</label>
+    <input type="number" id="weight" placeholder="e.g. 2" />
+  </div>
 
-    const DENSITY = 0.32; // lbs per cubic inch
+  <button onclick="calculate()">🔥 Calculate 🔥</button>
 
-    mode.addEventListener("change", () => {
-      if (mode.value === "v2w") {
-        volumeInput.style.display = "block";
-        weightInput.style.display = "none";
-      } else {
-        volumeInput.style.display = "none";
-        weightInput.style.display = "block";
-      }
-      resultDiv.innerText = "";
-    });
+  <div class="result" id="result"></div>
+</div>
 
-    function calculate() {
-      if (mode.value === "v2w") {
-        const volume = parseFloat(document.getElementById("volume").value);
-        const unit = document.getElementById("unit").value;
+<script>
+  const mode = document.getElementById("mode");
+  const volumeInput = document.getElementById("volumeInput");
+  const weightInput = document.getElementById("weightInput");
+  const resultDiv = document.getElementById("result");
+  const metalSelect = document.getElementById("metal");
 
-        let volumeInIn3;
-        if (unit === "in3") volumeInIn3 = volume;
-        if (unit === "floz") volumeInIn3 = volume * 1.80469;
-        if (unit === "ml") volumeInIn3 = volume * 0.06102;
+  const DENSITY = { bronze: 0.32, aluminum: 0.0975 };
 
-        if (isNaN(volumeInIn3)) {
-          resultDiv.innerText = "Please enter a valid volume.";
-          return;
-        }
-
-        const weight = volumeInIn3 * DENSITY;
-        resultDiv.innerText = `You will need approximately ${weight.toFixed(2)} lbs of bronze.`;
-      } else {
-        const weight = parseFloat(document.getElementById("weight").value);
-        if (isNaN(weight)) {
-          resultDiv.innerText = "Please enter a valid weight.";
-          return;
-        }
-
-        const volumeIn3 = weight / DENSITY;
-        const volumeFloz = volumeIn3 / 1.80469;
-        const volumeMl = volumeIn3 / 0.06102;
-
-        resultDiv.innerHTML = `
-          Cubic Inches: ${volumeIn3.toFixed(2)} in³<br>Fluid Ounces: ${volumeFloz.toFixed(2)} fl oz<br>
-          Milliliters: ${volumeMl.toFixed(2)} mL
-        `;
-      }
+  mode.addEventListener("change", () => {
+    if (mode.value === "v2w") {
+      volumeInput.style.display = "block";
+      weightInput.style.display = "none";
+    } else {
+      volumeInput.style.display = "none";
+      weightInput.style.display = "block";
     }
-  </script>
+    resultDiv.innerText = "";
+  });
+
+  function calculate() {
+    const metal = metalSelect.value;
+    const density = DENSITY[metal];
+
+    if (mode.value === "v2w") {
+      const volume = parseFloat(document.getElementById("volume").value);
+      const unit = document.getElementById("unit").value;
+
+      let volumeInIn3;
+      if (unit === "in3") volumeInIn3 = volume;
+      if (unit === "floz") volumeInIn3 = volume * 1.80469;
+      if (unit === "ml") volumeInIn3 = volume * 0.06102;
+
+      if (isNaN(volumeInIn3)) {
+        resultDiv.innerText = "Please enter a valid volume.";
+        return;
+      }
+
+      const weight = volumeInIn3 * density;
+      resultDiv.innerText = `You will need approximately ${weight.toFixed(2)} lbs of ${metal}.`;
+    } else {
+      const weight = parseFloat(document.getElementById("weight").value);
+      if (isNaN(weight)) {
+        resultDiv.innerText = "Please enter a valid weight.";
+        return;
+      }
+
+      const volumeIn3 = weight / density;
+      const volumeFloz = volumeIn3 / 1.80469;
+      const volumeMl = volumeIn3 / 0.06102;
+
+      resultDiv.innerHTML = `
+        Cubic Inches: ${volumeIn3.toFixed(2)} in³<br>
+        Fluid Ounces: ${volumeFloz.toFixed(2)} fl oz<br>
+        Milliliters: ${volumeMl.toFixed(2)} mL
+      `;
+    }
+  }
+
+  // 🔥 Add vertical flames only (sides)
+  const border = document.getElementById("flameBorder");
+  const total = 60;
+  for (let i = 0; i < total; i++) {
+    const f = document.createElement("div");
+    f.className = "flame";
+
+    const side = i < total / 2 ? "left" : "right";
+    f.style[side] = "0";
+    f.style.top = ((i % (total / 2)) / (total / 2)) * 100 + "%";
+    f.style.height = 40 + Math.random() * 60 + "px";
+    f.style.animationDuration = (0.2 + Math.random() * 0.8) + "s";
+    f.style.animationDelay = (Math.random() * 1.2) + "s";
+
+    border.appendChild(f);
+  }
+</script>
+
 </body>
 </html>
